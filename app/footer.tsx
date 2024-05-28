@@ -11,20 +11,22 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Footer = () => (
-  <footer className="mt-8 p-4 border-t flex justify-between items-center w-full">
+  <footer className="mt-8 p-4 border-t flex flex-col sm:flex-row justify-between items-center w-full">
     <HoverCard>
       <HoverCardTrigger asChild>
         <a
           href="https://beny.one/"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-center cursor-pointer"
+          className="text-center cursor-pointer mb-4 sm:mb-0"
         >
-          © 2024{" "}
-          <span className="font-semibold text-gray-800 dark:text-blue-300 hover:text-gray-600 dark:hover:text-blue-100 hover:underline transition-colors duration-200">
-            Beny Dishon
-          </span>
-          . All rights reserved.
+          <p className="text-sm sm:text-base">
+            © 2024{" "}
+            <span className="font-semibold text-gray-800 dark:text-blue-300 hover:text-gray-600 dark:hover:text-blue-100 hover:underline transition-colors duration-200">
+              Beny Dishon
+            </span>
+            . All rights reserved.
+          </p>
         </a>
       </HoverCardTrigger>
       <HoverCardContent className="w-80">
@@ -46,7 +48,7 @@ const Footer = () => (
         </div>
       </HoverCardContent>
     </HoverCard>
-    <div className="flex space-x-4">
+    <div className="flex flex-wrap justify-center space-x-4 sm:flex-nowrap">
       <a
         href="mailto:benydishon@gmail.com"
         className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
