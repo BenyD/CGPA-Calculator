@@ -1,6 +1,7 @@
 import { ThemeProvider } from "@/components/theme-provider";
-import "@/app/globals.css";
 import { ModeToggle } from "@/components/mode-toggle";
+import { Analytics } from "@vercel/analytics/react";
+import "@/app/globals.css";
 
 export default function RootLayout({
   children,
@@ -55,6 +56,7 @@ export default function RootLayout({
           </header>
           <main className="flex-grow container mx-auto p-4 flex flex-col">
             {children}
+            <Analytics />
           </main>
         </ThemeProvider>
       </body>
