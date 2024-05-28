@@ -2,6 +2,7 @@ import { Icon } from "@iconify/react";
 import twitterIcon from "@iconify-icons/mdi/twitter";
 import linkedinIcon from "@iconify-icons/mdi/linkedin";
 import githubIcon from "@iconify-icons/mdi/github";
+import mailIcon from "@iconify-icons/mdi/email"; // Importing the mail icon
 import {
   HoverCard,
   HoverCardContent,
@@ -20,7 +21,7 @@ const Footer = () => (
           className="text-center cursor-pointer"
         >
           © 2024{" "}
-          <span className="font-semibold text-blue-300 hover:text-blue-100 hover:underline transition-colors duration-200">
+          <span className="font-semibold text-gray-800 dark:text-blue-300 hover:text-gray-600 dark:hover:text-blue-100 hover:underline transition-colors duration-200">
             Beny Dishon
           </span>
           . All rights reserved.
@@ -46,6 +47,12 @@ const Footer = () => (
       </HoverCardContent>
     </HoverCard>
     <div className="flex space-x-4">
+      <a
+        href="mailto:your-email@example.com"
+        className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+      >
+        <Icon icon={mailIcon} className="w-6 h-6" />
+      </a>
       <a
         href="https://twitter.com"
         target="_blank"
