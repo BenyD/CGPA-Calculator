@@ -2,14 +2,26 @@
 "use client";
 
 import { useState } from "react";
-import { calculateCgpa } from "@/utils/calculateCGPA";
+import {
+  calculateCgpa,
+  calculateTotalGradePoints,
+} from "@/utils/calculateCGPA"; // Importing the functions
 import Instructions from "./instructions";
 import Footer from "./footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { motion } from "framer-motion"; // Importing framer-motion
-import { Separator } from "@/components/ui/separator"; // Importing Separator
+import { motion } from "framer-motion";
+import { Separator } from "@/components/ui/separator";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+} from "@/components/ui/dialog";
 
 import {
   Select,
@@ -23,7 +35,7 @@ type Grade = "S" | "A+" | "A" | "B+" | "B" | "C" | "P" | "F";
 
 const grades: Grade[] = ["S", "A+", "A", "B+", "B", "C", "P", "F"];
 
-const initialSubjects = Array.from({ length: 3 }, () => ({
+const initialSubjects = Array.from({ length: 4 }, () => ({
   name: "",
   grade: "S" as Grade,
   credits: 0,
@@ -33,7 +45,9 @@ const initialSubjects = Array.from({ length: 3 }, () => ({
 const Home = () => {
   const [subjects, setSubjects] = useState(initialSubjects);
   const [cgpa, setCgpa] = useState<number | null>(null);
+  const [totalGradePoints, setTotalGradePoints] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const addSubject = () => {
     setSubjects([
@@ -65,8 +79,11 @@ const Home = () => {
     }
 
     const result = calculateCgpa(subjects);
+    const totalPoints = calculateTotalGradePoints(subjects);
     setCgpa(result);
+    setTotalGradePoints(totalPoints);
     setError(null); // Clear the error if calculation is successful
+    setIsModalOpen(true); // Open the modal
   };
 
   return (
@@ -160,6 +177,7 @@ const Home = () => {
                   setSubjects(subjects.filter((_, i) => i !== index))
                 }
                 className="ml-2"
+                variant={"destructive"}
               >
                 Remove
               </Button>
@@ -175,16 +193,20 @@ const Home = () => {
       <div className="mb-8">
         <Instructions />
       </div>
-      {cgpa !== null && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="mt-4 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg"
-        >
-          <h2 className="text-xl font-bold">Your CGPA is: {cgpa.toFixed(2)}</h2>
-        </motion.div>
-      )}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>CGPA Calculation Result</DialogTitle>
+            <DialogDescription>
+              <p>Your CGPA is: {cgpa?.toFixed(2)}</p>
+              <p>Total Grade Points: {totalGradePoints?.toFixed(2)}</p>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogClose asChild>
+            <Button onClick={() => setIsModalOpen(false)}>Close</Button>
+          </DialogClose>
+        </DialogContent>
+      </Dialog>
       <div className="mt-auto">
         <Footer />
       </div>
