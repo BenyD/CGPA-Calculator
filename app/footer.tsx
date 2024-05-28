@@ -2,7 +2,7 @@ import { Icon } from "@iconify/react";
 import twitterIcon from "@iconify-icons/mdi/twitter";
 import linkedinIcon from "@iconify-icons/mdi/linkedin";
 import githubIcon from "@iconify-icons/mdi/github";
-import mailIcon from "@iconify-icons/mdi/email"; // Importing the mail icon
+import mailIcon from "@iconify-icons/mdi/email";
 import {
   HoverCard,
   HoverCardContent,
