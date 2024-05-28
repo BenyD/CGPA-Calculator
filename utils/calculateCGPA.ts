@@ -1,4 +1,3 @@
-// utils/calculateCgpa.ts
 type Grade = "S" | "A+" | "A" | "B+" | "B" | "C" | "P" | "F";
 
 const gradePoints: Record<Grade, number> = {

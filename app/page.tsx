@@ -1,11 +1,10 @@
-// app/page.tsx
 "use client";
 
 import { useState } from "react";
 import {
   calculateCgpa,
   calculateTotalGradePoints,
-} from "@/utils/calculateCGPA"; // Importing the functions
+} from "@/utils/calculateCGPA";
 import Instructions from "./instructions";
 import Footer from "./footer";
 import { Button } from "@/components/ui/button";
@@ -82,8 +81,8 @@ const Home = () => {
     const totalPoints = calculateTotalGradePoints(subjects);
     setCgpa(result);
     setTotalGradePoints(totalPoints);
-    setError(null); // Clear the error if calculation is successful
-    setIsModalOpen(true); // Open the modal
+    setError(null);
+    setIsModalOpen(true);
   };
 
   return (

@@ -1,4 +1,3 @@
-// app/layout.tsx
 import { ThemeProvider } from "@/components/theme-provider";
 import "@/app/globals.css";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -11,7 +10,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <title>CGPA Calculator</title>
+        <title>CGPA Calculator | By Beny Dishon</title>
         <meta
           name="description"
           content="Calculate your CGPA with ease using our simple CGPA Calculator. Input your grades and credits to get your CGPA instantly."
@@ -23,7 +22,7 @@ export default function RootLayout({
           name="keywords"
           content="CGPA Calculator, Grade Calculator, Student Tools, Education"
         />
-        <meta name="author" content="Your Name" />
+        <meta name="author" content="Beny Dishon" />
         <link rel="icon" href="/favicon.ico" />
         <link
           rel="apple-touch-icon"

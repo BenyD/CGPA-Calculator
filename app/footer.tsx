@@ -15,7 +15,7 @@ const Footer = () => (
     <HoverCard>
       <HoverCardTrigger asChild>
         <a
-          href="https://your-link.com"
+          href="https://beny.one/"
           target="_blank"
           rel="noopener noreferrer"
           className="text-center cursor-pointer"
@@ -31,7 +31,7 @@ const Footer = () => (
         <div className="flex space-x-4">
           <Avatar>
             <AvatarImage
-              src="https://github.com/beny-dishon.png"
+              src="https://media.licdn.com/dms/image/D5603AQFj_Qtbn6tt8g/profile-displayphoto-shrink_400_400/0/1705775112790?e=1722470400&v=beta&t=FbMWjcHgT6Ys253-uM186CV-t9HrTdHofg3PVfir5fw"
               alt="Beny Dishon"
             />
             <AvatarFallback>BD</AvatarFallback>
@@ -48,13 +48,13 @@ const Footer = () => (
     </HoverCard>
     <div className="flex space-x-4">
       <a
-        href="mailto:your-email@example.com"
+        href="mailto:benydishon@gmail.com"
         className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
       >
         <Icon icon={mailIcon} className="w-6 h-6" />
       </a>
       <a
-        href="https://twitter.com"
+        href="https://x.com/benydishon"
         target="_blank"
         rel="noopener noreferrer"
         className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
@@ -62,7 +62,7 @@ const Footer = () => (
         <Icon icon={twitterIcon} className="w-6 h-6" />
       </a>
       <a
-        href="https://linkedin.com"
+        href="https://www.linkedin.com/in/benydishon/"
         target="_blank"
         rel="noopener noreferrer"
         className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
@@ -70,7 +70,7 @@ const Footer = () => (
         <Icon icon={linkedinIcon} className="w-6 h-6" />
       </a>
       <a
-        href="https://github.com"
+        href="https://github.com/BenyD"
         target="_blank"
         rel="noopener noreferrer"
         className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
