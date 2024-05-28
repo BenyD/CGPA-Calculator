@@ -1,113 +1,118 @@
-import Image from "next/image";
+// app/page.tsx
+'use client'
 
-export default function Home() {
+import { useState } from 'react'
+import { calculateCgpa } from '@/utils/calculateCGPA'
+import Instructions from './instructions'
+import Footer from './footer'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from '@/components/ui/select'
+
+type Grade = 'S' | 'A+' | 'A' | 'B+' | 'B' | 'C' | 'P' | 'F';
+
+const grades: Grade[] = ['S', 'A+', 'A', 'B+', 'B', 'C', 'P', 'F'];
+
+const Home = () => {
+  const [subjects, setSubjects] = useState<{ name: string, grade: Grade, credits: number }[]>([])
+  const [cgpa, setCgpa] = useState<number | null>(null)
+
+  const addSubject = () => {
+    setSubjects([...subjects, { name: '', grade: 'S', credits: 0 }])
+  }
+
+  const handleCalculate = () => {
+    if (subjects.some(sub => sub.name === '' || sub.credits <= 0)) {
+      alert('Please fill all the fields correctly.')
+      return
+    }
+    const result = calculateCgpa(subjects)
+    setCgpa(result)
+  }
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
+    <div className="container mx-auto p-4 flex flex-col min-h-screen">
+      <h1 className="text-2xl font-bold mb-4">CGPA Calculator</h1>
+      {subjects.map((subject, index) => (
+        <div key={index} className="flex flex-col sm:flex-row items-center mb-2 w-full">
+          <div className="w-full sm:w-1/4 mb-2 sm:mb-0">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Subject Name</label>
+            <Input
+              type="text"
+              value={subject.name}
+              onChange={(e) => {
+                const newSubjects = [...subjects]
+                newSubjects[index].name = e.target.value
+                setSubjects(newSubjects)
+              }}
+              className="w-full p-2 border rounded"
+              placeholder="Subject Name"
             />
-          </a>
+          </div>
+          <div className="w-full sm:w-1/4 mb-2 sm:mb-0 sm:ml-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Grade</label>
+            <Select
+              onValueChange={(value) => {
+                const newSubjects = [...subjects]
+                newSubjects[index].grade = value as Grade
+                setSubjects(newSubjects)
+              }}
+            >
+              <SelectTrigger className="w-full p-2 border rounded">
+                <SelectValue placeholder="Select Grade" />
+              </SelectTrigger>
+              <SelectContent>
+                {grades.map((grade) => (
+                  <SelectItem key={grade} value={grade}>
+                    {grade}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="w-full sm:w-1/4 mb-2 sm:mb-0 sm:ml-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Credits</label>
+            <Input
+              type="number"
+              value={subject.credits === 0 ? '' : subject.credits}
+              onChange={(e) => {
+                const newSubjects = [...subjects]
+                newSubjects[index].credits = parseInt(e.target.value, 10)
+                setSubjects(newSubjects)
+              }}
+              className="w-full p-2 border rounded"
+              placeholder="Credits"
+            />
+          </div>
+          <Button onClick={() => setSubjects(subjects.filter((_, i) => i !== index))} className="ml-2 mt-4 sm:mt-0">
+            Remove
+          </Button>
         </div>
+      ))}
+      <div className="flex justify-between items-center mt-4 space-x-2">
+        <Button onClick={addSubject}>Add Subject</Button>
+        <Button onClick={handleCalculate}>Calculate CGPA</Button>
       </div>
-
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
+      <div className="mt-8">
+        <Instructions />
       </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+      {cgpa !== null && (
+        <div className="mt-4">
+          <h2 className="text-xl">Your CGPA is: {cgpa.toFixed(2)}</h2>
+        </div>
+      )}
+      <div className="mt-auto">
+        <Footer />
       </div>
-    </main>
-  );
+    </div>
+  )
 }
+
+export default Home
