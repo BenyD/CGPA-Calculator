@@ -43,14 +43,14 @@ export default function RootLayout({
           href="/favicon-16x16.png"
         />
       </head>
-      <body className="min-h-screen flex flex-col">
+      <body className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <header className="flex justify-between p-4 border-b dark:border-gray-700">
+          <header className="flex justify-between items-center p-4 border-b dark:border-gray-700">
             <h1 className="text-xl font-bold">CGPA Calculator</h1>
             <ModeToggle />
           </header>
