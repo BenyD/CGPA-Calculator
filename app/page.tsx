@@ -14,7 +14,6 @@ import { motion } from "framer-motion";
 import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -29,6 +28,8 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
+import { Icon } from "@iconify/react";
+import trashIcon from "@iconify-icons/mdi/trash";
 
 type Grade = "S" | "A+" | "A" | "B+" | "B" | "C" | "P" | "F";
 
@@ -175,15 +176,16 @@ const Home = () => {
                 onClick={() =>
                   setSubjects(subjects.filter((_, i) => i !== index))
                 }
-                className="ml-2"
+                className="ml-2 sm:ml-2 p-2"
                 variant={"destructive"}
               >
-                Remove
+                <span className="hidden sm:inline">Remove</span>
+                <Icon icon={trashIcon} className="w-4 h-4 sm:hidden" />
               </Button>
             </div>
           </motion.div>
         ))}
-        <div className="flex mt-4 space-x-2">
+        <div className="flex mt-4 max-sm:justify-center max-sm:mt-8 space-x-2">
           <Button onClick={addSubject}>Add Subject</Button>
           <Button onClick={handleCalculate}>Calculate CGPA</Button>
         </div>

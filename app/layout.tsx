@@ -19,7 +19,6 @@ export default function RootLayout({
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta charSet="UTF-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta
           name="keywords"
           content="CGPA Calculator, Grade Calculator, Student Tools, Education"
