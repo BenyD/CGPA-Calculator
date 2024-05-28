@@ -1,12 +1,48 @@
 // app/layout.tsx
-import { ThemeProvider } from '@/components/theme-provider'
-import '@/app/globals.css'
-import { ModeToggle } from '@/components/mode-toggle'
+import { ThemeProvider } from "@/components/theme-provider";
+import "@/app/globals.css";
+import { ModeToggle } from "@/components/mode-toggle";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head />
+      <head>
+        <title>CGPA Calculator</title>
+        <meta
+          name="description"
+          content="Calculate your CGPA with ease using our simple CGPA Calculator. Input your grades and credits to get your CGPA instantly."
+        />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta charSet="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta
+          name="keywords"
+          content="CGPA Calculator, Grade Calculator, Student Tools, Education"
+        />
+        <meta name="author" content="Your Name" />
+        <link rel="icon" href="/favicon.ico" />
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/apple-touch-icon.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href="/favicon-32x32.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href="/favicon-16x16.png"
+        />
+      </head>
       <body className="min-h-screen flex flex-col">
         <ThemeProvider
           attribute="class"
@@ -24,5 +60,5 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </ThemeProvider>
       </body>
     </html>
-  )
+  );
 }
