@@ -36,7 +36,7 @@ const grades: Grade[] = ["S", "A+", "A", "B+", "B", "C", "P", "F"];
 
 interface Subject {
   name: string;
-  grade: Grade;
+  grade: Grade | "";
   credits: number;
   valid: boolean;
 }
@@ -52,7 +52,7 @@ const initialSemesters: Semester[] = [
     id: 1,
     subjects: Array.from({ length: 4 }, () => ({
       name: "",
-      grade: "S" as Grade,
+      grade: "" as Grade | "",
       credits: 0,
       valid: true,
     })),
@@ -79,7 +79,7 @@ const Home = () => {
         id: semesters.length + 1,
         subjects: Array.from({ length: 4 }, () => ({
           name: "",
-          grade: "S" as Grade,
+          grade: "" as Grade | "",
           credits: 0,
           valid: true,
         })),
@@ -102,7 +102,7 @@ const Home = () => {
               ...semester,
               subjects: [
                 ...semester.subjects,
-                { name: "", grade: "S", credits: 0, valid: true },
+                { name: "", grade: "", credits: 0, valid: true },
               ],
             }
           : semester
@@ -116,7 +116,7 @@ const Home = () => {
 
     let valid = true;
     const updatedSubjects = semester.subjects.map((subject) => {
-      if (subject.name === "" || subject.credits <= 0) {
+      if (subject.name === "" || subject.credits <= 0 || subject.grade === "") {
         valid = false;
         return { ...subject, valid: false };
       }
@@ -133,7 +133,11 @@ const Home = () => {
       return;
     }
 
-    const result = calculateCgpa(updatedSubjects);
+    const validSubjects = updatedSubjects.filter(
+      (subject): subject is Subject & { grade: Grade } => subject.grade !== ""
+    );
+
+    const result = calculateCgpa(validSubjects);
     setSemesters((prevSemesters) =>
       prevSemesters.map((sem) =>
         sem.id === semesterId ? { ...sem, gpa: result } : sem
@@ -150,7 +154,11 @@ const Home = () => {
     const updatedSemesters = semesters.map((semester) => {
       let valid = true;
       const updatedSubjects = semester.subjects.map((subject) => {
-        if (subject.name === "" || subject.credits <= 0) {
+        if (
+          subject.name === "" ||
+          subject.credits <= 0 ||
+          subject.grade === ""
+        ) {
           valid = false;
           return { ...subject, valid: false };
         }
@@ -162,7 +170,11 @@ const Home = () => {
         return { ...semester, subjects: updatedSubjects, gpa: undefined };
       }
 
-      const result = calculateCgpa(updatedSubjects);
+      const validSubjects = updatedSubjects.filter(
+        (subject): subject is Subject & { grade: Grade } => subject.grade !== ""
+      );
+
+      const result = calculateCgpa(validSubjects);
       return { ...semester, subjects: updatedSubjects, gpa: result };
     });
 
@@ -283,8 +295,15 @@ const Home = () => {
                       )
                     );
                   }}
+                  value={subject.grade}
                 >
-                  <SelectTrigger className="w-full p-2 border rounded">
+                  <SelectTrigger
+                    className={`w-full p-2 border rounded ${
+                      !subject.valid && subject.grade === ""
+                        ? "border-red-500"
+                        : ""
+                    }`}
+                  >
                     <SelectValue placeholder="Select Grade" />
                   </SelectTrigger>
                   <SelectContent>
