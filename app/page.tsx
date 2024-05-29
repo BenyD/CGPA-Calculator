@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import {
   calculateCgpa,
-  calculateTotalGradePoints,
+  calculateTotalGradePoints, // TO DO: Calculate Total Grade Points
 } from "@/utils/calculateCGPA";
 import Instructions from "./instructions";
 import Footer from "./footer";
@@ -146,17 +146,51 @@ const Home = () => {
     setError(null);
   };
 
+  const calculateAllGpas = () => {
+    const updatedSemesters = semesters.map((semester) => {
+      let valid = true;
+      const updatedSubjects = semester.subjects.map((subject) => {
+        if (subject.name === "" || subject.credits <= 0) {
+          valid = false;
+          return { ...subject, valid: false };
+        }
+        return { ...subject, valid: true };
+      });
+
+      if (!valid) {
+        setError("Please fill all the fields correctly.");
+        return { ...semester, subjects: updatedSubjects, gpa: undefined };
+      }
+
+      const result = calculateCgpa(updatedSubjects);
+      return { ...semester, subjects: updatedSubjects, gpa: result };
+    });
+
+    setSemesters(updatedSemesters);
+    return updatedSemesters;
+  };
+
   const handleCalculateCgpa = () => {
-    const gpas = semesters
+    const updatedSemesters = calculateAllGpas();
+    const gpas = updatedSemesters
       .map((semester) => semester.gpa)
       .filter((gpa): gpa is number => gpa !== undefined);
     if (gpas.length === 0) {
-      setError("Please calculate GPA for at least one semester.");
+      setError("Please fill all the fields correctly for all subjects.");
       return;
     }
     const result = gpas.reduce((sum, gpa) => sum + gpa, 0) / gpas.length;
     setCgpa(result);
+    setGpaResults(
+      updatedSemesters
+        .filter((semester) => semester.gpa !== undefined)
+        .map((semester) => ({
+          semesterId: semester.id,
+          gpa: semester.gpa as number,
+        }))
+    );
     setIsModalOpen(true);
+    setError(null);
   };
 
   if (semesters.length === 0) {
@@ -320,21 +354,23 @@ const Home = () => {
             </Button>
           </div>
           {semester.gpa !== undefined && (
-            <div className="mt-4">
-              <p>
+            <div className="mt-4 p-4 border rounded bg-gray-100 dark:bg-gray-700">
+              <p className="text-lg font-semibold text-center">
                 GPA for Semester {semester.id}: {semester.gpa.toFixed(2)}
               </p>
             </div>
           )}
         </motion.div>
       ))}
-      <Button className="mb-8" onClick={addSemester}>
-        Add Semester
-      </Button>
-      <Separator className="my-8" />
-      <div className="flex justify-center mb-8">
-        <Button onClick={handleCalculateCgpa}>Calculate CGPA</Button>
+      <div className="flex mt-4 space-x-2">
+        <Button className="w-full" onClick={addSemester}>
+          Add Semester
+        </Button>
+        <Button className="w-full" onClick={handleCalculateCgpa}>
+          Calculate CGPA
+        </Button>
       </div>
+      <Separator className="my-8" />
       <div className="mb-8">
         <Instructions />
       </div>
@@ -342,12 +378,15 @@ const Home = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>CGPA Calculation Result</DialogTitle>
+            <Separator className="my-2" />
             <DialogDescription>
-              {gpaResults.map(({ semesterId, gpa }) => (
-                <p key={semesterId}>
-                  GPA for Semester {semesterId}: {gpa.toFixed(2)}
-                </p>
-              ))}
+              {gpaResults
+                .sort((a, b) => a.semesterId - b.semesterId)
+                .map(({ semesterId, gpa }) => (
+                  <p key={semesterId}>
+                    GPA for Semester {semesterId}: {gpa.toFixed(2)}
+                  </p>
+                ))}
               <p className="mt-4">Your CGPA is: {cgpa?.toFixed(2)}</p>
             </DialogDescription>
           </DialogHeader>

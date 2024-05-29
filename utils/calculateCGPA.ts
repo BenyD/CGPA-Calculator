@@ -1,5 +1,3 @@
-// CalculateCGPA.ts
-
 type Grade = "S" | "A+" | "A" | "B+" | "B" | "C" | "P" | "F";
 
 const gradePoints: Record<Grade, number> = {
@@ -28,6 +26,7 @@ export function calculateCgpa(
   return totalAchieved / totalCredits;
 }
 
+// Unused Function (Refer Page.tsx To Do)
 export function calculateTotalGradePoints(
   grades: { grade: Grade; credits: number }[]
 ): number {
