@@ -225,6 +225,7 @@ const Home = () => {
               onClick={() => removeSemester(semester.id)}
               className="p-2"
               variant={"destructive"}
+              disabled={semesters.length === 1}
             >
               <span className="hidden sm:inline">Remove Semester</span>
               <Icon icon={trashIcon} className="w-4 h-4 sm:hidden" />
