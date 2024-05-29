@@ -1,3 +1,5 @@
+// CalculateCGPA.ts
+
 type Grade = "S" | "A+" | "A" | "B+" | "B" | "C" | "P" | "F";
 
 const gradePoints: Record<Grade, number> = {
@@ -20,21 +22,21 @@ export function calculateCgpa(
   grades.forEach(({ grade, credits }) => {
     const gradePoint = gradePoints[grade];
     totalAchieved += gradePoint * credits;
-    totalCredits += 10 * credits;
+    totalCredits += credits;
   });
 
-  return (totalAchieved / totalCredits) * 10;
+  return totalAchieved / totalCredits;
 }
 
 export function calculateTotalGradePoints(
   grades: { grade: Grade; credits: number }[]
 ): number {
-  let totalPoints = 0;
+  let totalGradePoints = 0;
 
   grades.forEach(({ grade, credits }) => {
     const gradePoint = gradePoints[grade];
-    totalPoints += gradePoint * credits;
+    totalGradePoints += gradePoint * credits;
   });
 
-  return totalPoints;
+  return totalGradePoints;
 }

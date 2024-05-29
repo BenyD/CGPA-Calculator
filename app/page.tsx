@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   calculateCgpa,
   calculateTotalGradePoints,
@@ -20,7 +20,6 @@ import {
   DialogDescription,
   DialogClose,
 } from "@/components/ui/dialog";
-
 import {
   Select,
   SelectTrigger,
@@ -35,30 +34,88 @@ type Grade = "S" | "A+" | "A" | "B+" | "B" | "C" | "P" | "F";
 
 const grades: Grade[] = ["S", "A+", "A", "B+", "B", "C", "P", "F"];
 
-const initialSubjects = Array.from({ length: 4 }, () => ({
-  name: "",
-  grade: "S" as Grade,
-  credits: 0,
-  valid: true,
-}));
+interface Subject {
+  name: string;
+  grade: Grade;
+  credits: number;
+  valid: boolean;
+}
+
+interface Semester {
+  id: number;
+  subjects: Subject[];
+  gpa?: number;
+}
+
+const initialSemesters: Semester[] = [
+  {
+    id: 1,
+    subjects: Array.from({ length: 4 }, () => ({
+      name: "",
+      grade: "S" as Grade,
+      credits: 0,
+      valid: true,
+    })),
+  },
+];
 
 const Home = () => {
-  const [subjects, setSubjects] = useState(initialSubjects);
+  const [semesters, setSemesters] = useState<Semester[]>([]);
   const [cgpa, setCgpa] = useState<number | null>(null);
-  const [totalGradePoints, setTotalGradePoints] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [gpaResults, setGpaResults] = useState<
+    { semesterId: number; gpa: number }[]
+  >([]);
 
-  const addSubject = () => {
-    setSubjects([
-      ...subjects,
-      { name: "", grade: "S", credits: 0, valid: true },
+  useEffect(() => {
+    setSemesters(initialSemesters);
+  }, []);
+
+  const addSemester = () => {
+    setSemesters([
+      ...semesters,
+      {
+        id: semesters.length + 1,
+        subjects: Array.from({ length: 4 }, () => ({
+          name: "",
+          grade: "S" as Grade,
+          credits: 0,
+          valid: true,
+        })),
+      },
     ]);
   };
 
-  const handleCalculate = () => {
+  const removeSemester = (semesterId: number) => {
+    setSemesters(semesters.filter((semester) => semester.id !== semesterId));
+    setGpaResults(
+      gpaResults.filter((result) => result.semesterId !== semesterId)
+    );
+  };
+
+  const addSubject = (semesterId: number) => {
+    setSemesters((prevSemesters) =>
+      prevSemesters.map((semester) =>
+        semester.id === semesterId
+          ? {
+              ...semester,
+              subjects: [
+                ...semester.subjects,
+                { name: "", grade: "S", credits: 0, valid: true },
+              ],
+            }
+          : semester
+      )
+    );
+  };
+
+  const handleCalculateGpa = (semesterId: number) => {
+    const semester = semesters.find((sem) => sem.id === semesterId);
+    if (!semester) return;
+
     let valid = true;
-    const updatedSubjects = subjects.map((subject) => {
+    const updatedSubjects = semester.subjects.map((subject) => {
       if (subject.name === "" || subject.credits <= 0) {
         valid = false;
         return { ...subject, valid: false };
@@ -66,25 +123,45 @@ const Home = () => {
       return { ...subject, valid: true };
     });
 
-    setSubjects(updatedSubjects);
-
     if (!valid) {
       setError("Please fill all the fields correctly.");
+      setSemesters((prevSemesters) =>
+        prevSemesters.map((sem) =>
+          sem.id === semesterId ? { ...sem, subjects: updatedSubjects } : sem
+        )
+      );
       return;
     }
 
-    if (subjects.length === 0) {
-      setError("Please add at least one subject.");
-      return;
-    }
-
-    const result = calculateCgpa(subjects);
-    const totalPoints = calculateTotalGradePoints(subjects);
-    setCgpa(result);
-    setTotalGradePoints(totalPoints);
+    const result = calculateCgpa(updatedSubjects);
+    setSemesters((prevSemesters) =>
+      prevSemesters.map((sem) =>
+        sem.id === semesterId ? { ...sem, gpa: result } : sem
+      )
+    );
+    setGpaResults((prevResults) => [
+      ...prevResults.filter((result) => result.semesterId !== semesterId),
+      { semesterId, gpa: result },
+    ]);
     setError(null);
+  };
+
+  const handleCalculateCgpa = () => {
+    const gpas = semesters
+      .map((semester) => semester.gpa)
+      .filter((gpa): gpa is number => gpa !== undefined);
+    if (gpas.length === 0) {
+      setError("Please calculate GPA for at least one semester.");
+      return;
+    }
+    const result = gpas.reduce((sum, gpa) => sum + gpa, 0) / gpas.length;
+    setCgpa(result);
     setIsModalOpen(true);
   };
+
+  if (semesters.length === 0) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="container mx-auto p-4 flex flex-col grow">
@@ -100,97 +177,164 @@ const Home = () => {
           </Alert>
         </motion.div>
       )}
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg mb-8">
-        {subjects.map((subject, index) => (
-          <motion.div
-            key={index}
-            className="flex flex-wrap items-end mb-4 w-full space-y-2"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: index * 0.1 }}
-          >
-            <div className="w-full sm:w-1/3">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                Subject Name
-              </label>
-              <Input
-                type="text"
-                value={subject.name}
-                onChange={(e) => {
-                  const newSubjects = [...subjects];
-                  newSubjects[index].name = e.target.value;
-                  newSubjects[index].valid = true;
-                  setSubjects(newSubjects);
-                }}
-                className={`w-full p-2 border rounded ${
-                  !subject.valid && subject.name === "" ? "border-red-500" : ""
-                }`}
-                placeholder="Subject Name"
-              />
+      {semesters.map((semester) => (
+        <motion.div
+          key={semester.id}
+          className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg mb-8"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">Semester {semester.id}</h2>
+            <Button
+              onClick={() => removeSemester(semester.id)}
+              className="p-2"
+              variant={"destructive"}
+            >
+              <span className="hidden sm:inline">Remove Semester</span>
+              <Icon icon={trashIcon} className="w-4 h-4 sm:hidden" />
+            </Button>
+          </div>
+          {semester.subjects.map((subject, index) => (
+            <motion.div
+              key={index}
+              className="flex flex-wrap items-end mb-4 w-full space-y-2"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2, delay: index * 0.05 }}
+            >
+              <div className="w-full sm:w-1/3">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                  Subject Name
+                </label>
+                <Input
+                  type="text"
+                  value={subject.name}
+                  onChange={(e) => {
+                    const newSubjects = [...semester.subjects];
+                    newSubjects[index].name = e.target.value;
+                    newSubjects[index].valid = true;
+                    setSemesters((prevSemesters) =>
+                      prevSemesters.map((sem) =>
+                        sem.id === semester.id
+                          ? { ...sem, subjects: newSubjects }
+                          : sem
+                      )
+                    );
+                  }}
+                  className={`w-full p-2 border rounded ${
+                    !subject.valid && subject.name === ""
+                      ? "border-red-500"
+                      : ""
+                  }`}
+                  placeholder="Subject Name"
+                />
+              </div>
+              <div className="w-full sm:w-1/3 sm:pl-2 mt-2 sm:mt-0">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                  Grade
+                </label>
+                <Select
+                  onValueChange={(value) => {
+                    const newSubjects = [...semester.subjects];
+                    newSubjects[index].grade = value as Grade;
+                    newSubjects[index].valid = true;
+                    setSemesters((prevSemesters) =>
+                      prevSemesters.map((sem) =>
+                        sem.id === semester.id
+                          ? { ...sem, subjects: newSubjects }
+                          : sem
+                      )
+                    );
+                  }}
+                >
+                  <SelectTrigger className="w-full p-2 border rounded">
+                    <SelectValue placeholder="Select Grade" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {grades.map((grade) => (
+                      <SelectItem key={grade} value={grade}>
+                        {grade}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="w-full sm:w-1/3 sm:pl-2 mt-2 sm:mt-0">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                  Credits
+                </label>
+                <Input
+                  type="number"
+                  value={subject.credits === 0 ? "" : subject.credits}
+                  onChange={(e) => {
+                    const newSubjects = [...semester.subjects];
+                    newSubjects[index].credits = parseInt(e.target.value, 10);
+                    newSubjects[index].valid = true;
+                    setSemesters((prevSemesters) =>
+                      prevSemesters.map((sem) =>
+                        sem.id === semester.id
+                          ? { ...sem, subjects: newSubjects }
+                          : sem
+                      )
+                    );
+                  }}
+                  className={`w-full p-2 border rounded ${
+                    !subject.valid && subject.credits <= 0
+                      ? "border-red-500"
+                      : ""
+                  }`}
+                  placeholder="Credits"
+                />
+              </div>
+              <div className="w-full mt-4 flex justify-end">
+                <Button
+                  onClick={() =>
+                    setSemesters((prevSemesters) =>
+                      prevSemesters.map((sem) =>
+                        sem.id === semester.id
+                          ? {
+                              ...sem,
+                              subjects: sem.subjects.filter(
+                                (_, i) => i !== index
+                              ),
+                            }
+                          : sem
+                      )
+                    )
+                  }
+                  className="ml-2 sm:ml-2 p-2"
+                  variant={"destructive"}
+                >
+                  <span className="hidden sm:inline">Remove</span>
+                  <Icon icon={trashIcon} className="w-4 h-4 sm:hidden" />
+                </Button>
+              </div>
+            </motion.div>
+          ))}
+          <div className="flex mt-4 max-sm:justify-center max-sm:mt-8 space-x-2">
+            <Button onClick={() => addSubject(semester.id)}>Add Subject</Button>
+            <Button onClick={() => handleCalculateGpa(semester.id)}>
+              Calculate GPA
+            </Button>
+          </div>
+          {semester.gpa !== undefined && (
+            <div className="mt-4">
+              <p>
+                GPA for Semester {semester.id}: {semester.gpa.toFixed(2)}
+              </p>
             </div>
-            <div className="w-full sm:w-1/3 sm:pl-2 mt-2 sm:mt-0">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                Grade
-              </label>
-              <Select
-                onValueChange={(value) => {
-                  const newSubjects = [...subjects];
-                  newSubjects[index].grade = value as Grade;
-                  newSubjects[index].valid = true;
-                  setSubjects(newSubjects);
-                }}
-              >
-                <SelectTrigger className="w-full p-2 border rounded">
-                  <SelectValue placeholder="Select Grade" />
-                </SelectTrigger>
-                <SelectContent>
-                  {grades.map((grade) => (
-                    <SelectItem key={grade} value={grade}>
-                      {grade}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="w-full sm:w-1/3 sm:pl-2 mt-2 sm:mt-0">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                Credits
-              </label>
-              <Input
-                type="number"
-                value={subject.credits === 0 ? "" : subject.credits}
-                onChange={(e) => {
-                  const newSubjects = [...subjects];
-                  newSubjects[index].credits = parseInt(e.target.value, 10);
-                  newSubjects[index].valid = true;
-                  setSubjects(newSubjects);
-                }}
-                className={`w-full p-2 border rounded ${
-                  !subject.valid && subject.credits <= 0 ? "border-red-500" : ""
-                }`}
-                placeholder="Credits"
-              />
-            </div>
-            <div className="w-full mt-4 flex justify-end">
-              <Button
-                onClick={() =>
-                  setSubjects(subjects.filter((_, i) => i !== index))
-                }
-                className="ml-2 sm:ml-2 p-2"
-                variant={"destructive"}
-              >
-                <span className="hidden sm:inline">Remove</span>
-                <Icon icon={trashIcon} className="w-4 h-4 sm:hidden" />
-              </Button>
-            </div>
-          </motion.div>
-        ))}
-        <div className="flex mt-4 max-sm:justify-center max-sm:mt-8 space-x-2">
-          <Button onClick={addSubject}>Add Subject</Button>
-          <Button onClick={handleCalculate}>Calculate CGPA</Button>
-        </div>
-      </div>
+          )}
+        </motion.div>
+      ))}
+      <Button className="mb-8" onClick={addSemester}>
+        Add Semester
+      </Button>
       <Separator className="my-8" />
+      <div className="flex justify-center mb-8">
+        <Button onClick={handleCalculateCgpa}>Calculate CGPA</Button>
+      </div>
       <div className="mb-8">
         <Instructions />
       </div>
@@ -199,8 +343,12 @@ const Home = () => {
           <DialogHeader>
             <DialogTitle>CGPA Calculation Result</DialogTitle>
             <DialogDescription>
-              <p>Your CGPA is: {cgpa?.toFixed(2)}</p>
-              <p>Total Grade Points: {totalGradePoints?.toFixed(2)}</p>
+              {gpaResults.map(({ semesterId, gpa }) => (
+                <p key={semesterId}>
+                  GPA for Semester {semesterId}: {gpa.toFixed(2)}
+                </p>
+              ))}
+              <p className="mt-4">Your CGPA is: {cgpa?.toFixed(2)}</p>
             </DialogDescription>
           </DialogHeader>
           <DialogClose asChild>
